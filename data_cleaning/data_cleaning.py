@@ -34,13 +34,37 @@ def correct_column_types(df):
 def normalize_text_columns(df):
     """
     Normalizar las columnas de texto (ej. eliminar espacios extra, capitalizar correctamente).
+    También incluye correcciones específicas para ciertas columnas como 'Gender', 
+    'Family History of Mental Illness' y 'Sleep Duration'.
     """
+    # Normalización estándar de texto
     df['Gender'] = df['Gender'].str.strip().str.capitalize()
+
+    # Corregir valores invertidos en la columna 'Gender'
+    gender_corrections = {'Elam': 'Male', 'Elamef': 'Female', 'ElaM': 'Male', 'ElameF': 'Female'}
+    df['Gender'] = df['Gender'].replace(gender_corrections)
+
+    # Corrección de la columna 'Family History of Mental Illness'
+    family_history_corrections = {
+        'yes': 'Yes', 
+        'no': 'No', 
+        'sey': 'Yes', 
+        'on': 'No'
+    }
+    df['Family History of Mental Illness'] = df['Family History of Mental Illness'].str.strip().str.lower()
+    df['Family History of Mental Illness'] = df['Family History of Mental Illness'].replace(family_history_corrections)
+
+    # Corrección de la columna 'Have you ever had suicidal thoughts ?'
+    df['Have you ever had suicidal thoughts ?'] = df['Have you ever had suicidal thoughts ?'].str.strip().str.lower()
+    df['Have you ever had suicidal thoughts ?'] = df['Have you ever had suicidal thoughts ?'].replace(family_history_corrections)
+
+    # Otras columnas que requieren normalización
     df['City'] = df['City'].str.strip().str.capitalize()
     df['Dietary Habits'] = df['Dietary Habits'].str.strip().str.capitalize()
     df['Degree'] = df['Degree'].str.strip().str.upper()
 
     return df
+
 
 def transform_sleep_duration(df):
     """
@@ -60,6 +84,14 @@ def clean_family_history(df):
     """
     df['Family History of Mental Illness'] = df['Family History of Mental Illness'].apply(correct_family_history)
     return df
+
+def clean_suicidal_thoughts(df):
+    """
+    Limpiar la columna 'Have you ever had suicidal thoughts ?' para que solo tenga 'Yes' y 'No'.
+    """
+    df['Have you ever had suicidal thoughts ?'] = df['Have you ever had suicidal thoughts ?'].apply(correct_family_history)
+    return df
+
 
 def remove_anomalies(df):
     """
@@ -83,9 +115,6 @@ def clean_data(df, numeric_columns, categorical_columns):
     
     # Transformar la columna 'Sleep Duration'
     df = transform_sleep_duration(df)
-    
-    # Limpiar la columna 'Family History of Mental Illness'
-    df = clean_family_history(df)
     
     # Eliminar valores anómalos
     df = remove_anomalies(df)
